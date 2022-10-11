@@ -1,12 +1,20 @@
+const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
 // 添加一个createWindow()方法来将index.html加载进一个新的BrowserWindow实例。
 const createwindow = () => {
-  const win = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
   })
-  win.loadFile('index.html');
+  // 加载 index.html
+  mainWindow.loadFile('index.html');
+
+  // 打开开发工具
+  mainWindow.webContents.openDevTools()
 }
 // 调用createWindow()函数来打开您的窗口。
 app.whenReady().then(() => {
@@ -18,7 +26,9 @@ app.whenReady().then(() => {
     }
   })
 })
-// 监听 app 模块的 'window-all-closed' 事件。如果用户不是在 macOS(darwin) 上运行程序，则调用 app.quit()。
+// 除了 macOS 外，当所有窗口都被关闭的时候退出程序。 There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.qiut()
 })
